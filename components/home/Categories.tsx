@@ -1,79 +1,83 @@
-import Image from "next/image";
+import {
+  Armchair,
+  Gamepad2,
+  Laptop,
+  Monitor,
+  Network,
+  Printer,
+  Server,
+  Wrench,
+} from "lucide-react";
 
 const categories = [
   {
     title: "أجهزة كمبيوتر",
-    image: "/images/categories/desktop.jpg",
+    icon: Server,
   },
   {
     title: "لابتوبات",
-    image: "/images/categories/laptop.jpg",
+    icon: Laptop,
   },
   {
     title: "Gaming",
-    image: "/images/categories/gaming.jpg",
+    icon: Gamepad2,
   },
   {
     title: "شاشات",
-    image: "/images/categories/monitor.jpg",
+    icon: Monitor,
   },
   {
     title: "طابعات",
-    image: "/images/categories/printer.jpg",
+    icon: Printer,
   },
   {
     title: "الأثاث المكتبي",
-    image: "/images/categories/furniture.jpg",
+    icon: Armchair,
   },
   {
     title: "الشبكات",
-    image: "/images/categories/network.jpg",
+    icon: Network,
   },
   {
     title: "قطع غيار",
-    image: "/images/categories/parts.jpg",
+    icon: Wrench,
   },
 ];
 
 export default function Categories() {
   return (
-    <section className="max-w-7xl mx-auto py-20 px-6">
+    <section className="max-w-7xl mx-auto px-6 py-20">
+      <div className="mb-10">
+        <h2 className="text-4xl font-black text-gray-900">
+          تصفح حسب القسم
+        </h2>
 
-      <h2 className="text-4xl font-black mb-10 text-gray-900">
-        تصفح حسب القسم
-      </h2>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-
-        {categories.map((category) => (
-          <div
-            key={category.title}
-            className="bg-white rounded-2xl shadow hover:shadow-xl transition cursor-pointer overflow-hidden group"
-          >
-            <div className="relative h-48 bg-gray-100">
-
-              <Image
-                src={category.image}
-                alt={category.title}
-                fill
-                className="object-cover group-hover:scale-105 transition duration-300"
-              />
-
-            </div>
-
-            <div className="p-5 text-center">
-
-              <h3 className="font-bold text-lg">
-                {category.title}
-              </h3>
-
-            </div>
-
-          </div>
-        ))}
-
+        <p className="mt-3 text-gray-500">
+          اختر القسم المناسب وابحث عن المنتجات بسهولة
+        </p>
       </div>
 
+      <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+        {categories.map((category) => {
+          const Icon = category.icon;
+
+          return (
+            <button
+              key={category.title}
+              type="button"
+              className="group flex min-h-44 flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm transition hover:-translate-y-1 hover:border-orange-300 hover:shadow-lg"
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-orange-500 transition group-hover:bg-orange-500 group-hover:text-white">
+                <Icon size={31} strokeWidth={1.8} />
+              </div>
+
+              <h3 className="mt-5 text-lg font-bold text-gray-800">
+                {category.title}
+              </h3>
+            </button>
+          );
+        })}
+      </div>
     </section>
   );
 }
