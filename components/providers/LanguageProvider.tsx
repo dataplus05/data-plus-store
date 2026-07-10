@@ -11,17 +11,14 @@ import {
 
 export type Language = "he" | "ar";
 
-type LanguageContextValue = {
+type LanguageContextType = {
   language: Language;
   isHebrew: boolean;
   isArabic: boolean;
   setLanguage: (language: Language) => void;
-  toggleLanguage: () => void;
 };
 
-const LanguageContext = createContext<LanguageContextValue | undefined>(
-  undefined
-);
+const LanguageContext = createContext<LanguageContextType | null>(null);
 
 type LanguageProviderProps = {
   children: ReactNode;
@@ -31,32 +28,32 @@ export default function LanguageProvider({
   children,
 }: LanguageProviderProps) {
   const [language, setLanguageState] = useState<Language>("he");
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const savedLanguage = window.localStorage.getItem(
-      "data-plus-language"
-    );
+    const savedLanguage = localStorage.getItem("data-plus-language");
 
     if (savedLanguage === "he" || savedLanguage === "ar") {
       setLanguageState(savedLanguage);
+    } else {
+      setLanguageState("he");
     }
+
+    setIsReady(true);
   }, []);
 
   useEffect(() => {
+    if (!isReady) {
+      return;
+    }
+
     document.documentElement.lang = language;
     document.documentElement.dir = "rtl";
-
-    window.localStorage.setItem("data-plus-language", language);
-  }, [language]);
+    localStorage.setItem("data-plus-language", language);
+  }, [language, isReady]);
 
   function setLanguage(newLanguage: Language) {
     setLanguageState(newLanguage);
-  }
-
-  function toggleLanguage() {
-    setLanguageState((currentLanguage) =>
-      currentLanguage === "he" ? "ar" : "he"
-    );
   }
 
   const value = useMemo(
@@ -65,7 +62,6 @@ export default function LanguageProvider({
       isHebrew: language === "he",
       isArabic: language === "ar",
       setLanguage,
-      toggleLanguage,
     }),
     [language]
   );
