@@ -9,6 +9,7 @@ import Brands from "@/components/home/Brands";
 import SearchBar from "@/components/home/SearchBar";
 import Categories from "@/components/home/Categories";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
+import WhyChooseUs from "@/components/home/WhyChooseUs";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
         <SearchBar />
         <Categories />
         <FeaturedProducts />
+        <WhyChooseUs />
       </main>
 
       <Footer />
