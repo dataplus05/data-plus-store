@@ -10,6 +10,7 @@ import SearchBar from "@/components/home/SearchBar";
 import Categories from "@/components/home/Categories";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import StoreContact from "@/components/home/StoreContact";
 
 export default function Home() {
   return (
@@ -25,6 +26,7 @@ export default function Home() {
         <Categories />
         <FeaturedProducts />
         <WhyChooseUs />
+        <StoreContact />
       </main>
 
       <Footer />
