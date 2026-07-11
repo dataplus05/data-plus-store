@@ -1,40 +1,105 @@
-type Props = {
-  title: string;
-  price: string;
+"use client";
+
+import Link from "next/link";
+import {
+  Heart,
+  Monitor,
+  ShoppingCart,
+  Star,
+} from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
+type ProductCardProps = {
+  slug: string;
+  titleHe: string;
+  titleAr: string;
+  price: number;
+  oldPrice?: number;
+  badgeHe?: string;
+  badgeAr?: string;
 };
 
-export default function ProductCard({ title, price }: Props) {
+export default function ProductCard({
+  slug,
+  titleHe,
+  titleAr,
+  price,
+  oldPrice,
+  badgeHe,
+  badgeAr,
+}: ProductCardProps) {
+  const { isHebrew } = useLanguage();
+
+  const title = isHebrew ? titleHe : titleAr;
+  const badge = isHebrew ? badgeHe : badgeAr;
+
   return (
-    <div className="bg-white rounded-2xl border hover:shadow-xl transition overflow-hidden group">
+    <article className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+      {badge && (
+        <span className="absolute start-4 top-4 z-10 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">
+          {badge}
+        </span>
+      )}
 
-      <div className="h-56 bg-gray-100 flex items-center justify-center text-6xl group-hover:scale-105 transition">
+      <button
+        type="button"
+        aria-label={isHebrew ? "הוספה למועדפים" : "إضافة إلى المفضلة"}
+        className="absolute end-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition hover:border-orange-300 hover:text-orange-500"
+      >
+        <Heart size={19} />
+      </button>
 
-        💻
-
-      </div>
+      <Link
+        href={`/product/${slug}`}
+        className="flex h-56 items-center justify-center bg-gray-50"
+      >
+        <Monitor
+          size={92}
+          strokeWidth={1.2}
+          className="text-gray-700 transition duration-300 group-hover:scale-105"
+        />
+      </Link>
 
       <div className="p-5">
+        <div className="flex items-center gap-1 text-amber-400">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star key={star} size={15} fill="currentColor" />
+          ))}
 
-        <h3 className="font-bold text-lg text-gray-800">
+          <span className="ms-2 text-xs text-gray-400">(5)</span>
+        </div>
 
-          {title}
+        <Link href={`/product/${slug}`}>
+          <h3 className="mt-3 min-h-14 text-lg font-bold leading-7 text-gray-800 transition hover:text-orange-600">
+            {title}
+          </h3>
+        </Link>
 
-        </h3>
+        <div className="mt-4 flex items-end gap-3">
+          <span className="text-2xl font-black text-orange-500">
+            ₪{price.toLocaleString()}
+          </span>
 
-        <p className="text-orange-500 text-3xl font-black mt-4">
+          {oldPrice && (
+            <span className="text-sm text-gray-400 line-through">
+              ₪{oldPrice.toLocaleString()}
+            </span>
+          )}
+        </div>
 
-          ₪ {price}
-
+        <p className="mt-3 text-sm font-semibold text-green-600">
+          {isHebrew ? "במלאי" : "متوفر في المخزون"}
         </p>
 
-        <button className="w-full mt-6 bg-orange-500 hover:bg-orange-600 text-white rounded-xl py-3 font-bold transition">
+        <button
+          type="button"
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-950 py-3 font-bold text-white transition hover:bg-orange-500"
+        >
+          <ShoppingCart size={19} />
 
-          أضف إلى السلة
-
+          {isHebrew ? "הוספה לסל" : "أضف إلى السلة"}
         </button>
-
       </div>
-
-    </div>
+    </article>
   );
 }

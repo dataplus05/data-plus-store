@@ -1,61 +1,130 @@
 "use client";
 
 import Link from "next/link";
+import {
+  Heart,
+  Menu,
+  Search,
+  ShoppingCart,
+  UserRound,
+} from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export default function Header() {
+  const { isHebrew } = useLanguage();
+
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6">
-
-        <div className="flex items-center justify-between h-20">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-
-            <div className="w-12 h-12 rounded-xl bg-orange-500 flex items-center justify-center text-white font-black text-xl">
+    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex min-h-20 items-center justify-between gap-4">
+          <Link href="/" className="flex shrink-0 items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500 text-lg font-black text-white shadow-sm">
               DP
             </div>
 
             <div>
-              <h1 className="text-2xl font-black text-gray-900">
-                DATA PLUS
-              </h1>
+              <div
+                dir="ltr"
+                className="text-xl font-black tracking-tight text-gray-950 sm:text-2xl"
+              >
+                DATA <span className="text-orange-500">PLUS</span>
+              </div>
 
-              <p className="text-sm text-gray-500">
-                Computers & Electronics
-              </p>
+              <div className="text-xs text-gray-500">
+                {isHebrew ? "דאתא פלוס" : "داتا بلوس"}
+              </div>
             </div>
-
           </Link>
 
-          {/* Search */}
-          <div className="hidden lg:flex flex-1 mx-12">
-            <input
-              type="text"
-              placeholder="ابحث عن أي منتج..."
-              className="w-full h-12 rounded-xl border border-gray-300 px-5 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
+          <div className="hidden max-w-2xl flex-1 lg:block">
+            <label className="relative block">
+              <span className="sr-only">
+                {isHebrew ? "חיפוש מוצרים" : "البحث عن المنتجات"}
+              </span>
+
+              <input
+                type="search"
+                placeholder={
+                  isHebrew
+                    ? "חיפוש מחשב, מחשב נייד או מדפסת..."
+                    : "ابحث عن كمبيوتر، لابتوب أو طابعة..."
+                }
+                className="h-12 w-full rounded-xl border border-gray-300 bg-gray-50 px-5 pe-12 text-sm outline-none transition placeholder:text-gray-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+              />
+
+              <Search
+                size={20}
+                className="pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+            </label>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-4">
-
-            <button className="text-gray-700 hover:text-orange-500 transition">
-              ❤️
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              type="button"
+              aria-label={isHebrew ? "מועדפים" : "المفضلة"}
+              className="hidden h-11 w-11 items-center justify-center rounded-xl text-gray-700 transition hover:bg-orange-50 hover:text-orange-600 sm:flex"
+            >
+              <Heart size={22} />
             </button>
 
-            <button className="text-gray-700 hover:text-orange-500 transition">
-              🛒
+            <button
+              type="button"
+              aria-label={isHebrew ? "החשבון שלי" : "حسابي"}
+              className="hidden h-11 w-11 items-center justify-center rounded-xl text-gray-700 transition hover:bg-orange-50 hover:text-orange-600 sm:flex"
+            >
+              <UserRound size={22} />
             </button>
 
-            <button className="bg-orange-500 hover:bg-orange-600 transition text-white px-5 py-2 rounded-xl font-semibold">
-              تسجيل الدخول
+            <button
+              type="button"
+              aria-label={isHebrew ? "עגלת קניות" : "سلة المشتريات"}
+              className="relative flex h-11 w-11 items-center justify-center rounded-xl text-gray-700 transition hover:bg-orange-50 hover:text-orange-600"
+            >
+              <ShoppingCart size={23} />
+
+              <span className="absolute end-0 top-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold text-white">
+                0
+              </span>
             </button>
 
+            <Link
+              href="/login"
+              className="hidden rounded-xl bg-orange-500 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-orange-600 md:block"
+            >
+              {isHebrew ? "התחברות" : "تسجيل الدخول"}
+            </Link>
+
+            <button
+              type="button"
+              aria-label={isHebrew ? "פתיחת תפריט" : "فتح القائمة"}
+              className="flex h-11 w-11 items-center justify-center rounded-xl text-gray-700 transition hover:bg-orange-50 hover:text-orange-600 lg:hidden"
+            >
+              <Menu size={24} />
+            </button>
           </div>
-
         </div>
 
+        <div className="pb-4 lg:hidden">
+          <label className="relative block">
+            <span className="sr-only">
+              {isHebrew ? "חיפוש מוצרים" : "البحث عن المنتجات"}
+            </span>
+
+            <input
+              type="search"
+              placeholder={
+                isHebrew ? "מה אתם מחפשים?" : "عن ماذا تبحث؟"
+              }
+              className="h-11 w-full rounded-xl border border-gray-300 bg-gray-50 px-4 pe-11 text-sm outline-none focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+            />
+
+            <Search
+              size={19}
+              className="pointer-events-none absolute end-4 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+          </label>
+        </div>
       </div>
     </header>
   );

@@ -1,36 +1,98 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDown, Flame } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
-const links = [
-  { name: "الرئيسية", href: "/" },
-  { name: "المنتجات", href: "/shop" },
-  { name: "اللابتوبات", href: "/category/laptops" },
-  { name: "أجهزة الكمبيوتر", href: "/category/desktops" },
-  { name: "Gaming", href: "/category/gaming" },
-  { name: "الشاشات", href: "/category/monitors" },
-  { name: "الطابعات", href: "/category/printers" },
-  { name: "الأثاث المكتبي", href: "/category/furniture" },
-  { name: "العروض", href: "/offers" },
-  { name: "اتصل بنا", href: "/contact" },
+const navigation = [
+  {
+    href: "/",
+    he: "ראשי",
+    ar: "الرئيسية",
+  },
+  {
+    href: "/shop",
+    he: "מוצרים",
+    ar: "المنتجات",
+  },
+  {
+    href: "/category/laptops",
+    he: "מחשבים ניידים",
+    ar: "اللابتوبات",
+  },
+  {
+    href: "/category/desktops",
+    he: "מחשבים נייחים",
+    ar: "أجهزة الكمبيوتر",
+  },
+  {
+    href: "/category/gaming",
+    he: "גיימינג",
+    ar: "Gaming",
+  },
+  {
+    href: "/category/monitors",
+    he: "מסכים",
+    ar: "الشاشات",
+  },
+  {
+    href: "/category/printers",
+    he: "מדפסות",
+    ar: "الطابعات",
+  },
+  {
+    href: "/category/furniture",
+    he: "ריהוט משרדי",
+    ar: "الأثاث المكتبي",
+  },
+  {
+    href: "/offers",
+    he: "מבצעים",
+    ar: "العروض",
+  },
+  {
+    href: "/contact",
+    he: "צור קשר",
+    ar: "اتصل بنا",
+  },
 ];
 
 export default function Navbar() {
-  return (
-    <nav className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center gap-8 h-14 overflow-x-auto whitespace-nowrap">
+  const { language, isHebrew } = useLanguage();
 
-          {links.map((link) => (
+  return (
+    <nav className="border-b border-gray-200 bg-white">
+      <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 sm:px-6">
+        <button
+          type="button"
+          className="my-2 flex shrink-0 items-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-gray-800"
+        >
+          <span>
+            {isHebrew ? "כל הקטגוריות" : "جميع الأقسام"}
+          </span>
+
+          <ChevronDown size={16} />
+        </button>
+
+        <div className="flex min-h-14 items-center gap-1 whitespace-nowrap">
+          {navigation.map((item) => (
             <Link
-              key={link.name}
-              href={link.href}
-              className="text-gray-700 hover:text-orange-500 font-medium transition duration-200"
+              key={item.href}
+              href={item.href}
+              className="rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-orange-50 hover:text-orange-600"
             >
-              {link.name}
+              {item[language]}
             </Link>
           ))}
 
+          <Link
+            href="/offers"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold text-orange-600 transition hover:bg-orange-50"
+          >
+            <Flame size={17} />
+
+            {isHebrew ? "מבצעים חמים" : "عروض مميزة"}
+          </Link>
         </div>
       </div>
     </nav>

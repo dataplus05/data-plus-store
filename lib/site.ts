@@ -4,16 +4,21 @@ export const site = {
   hebrewName: "דאתא פלוס",
 
   phone: "0546734054",
+  internationalPhone: "972546734054",
 
-  location: "البعنة - دير الأسد",
+  email: "dataplus05@gmail.com",
 
-  email: "info@dataplus05.com",
+  locationAr: "البعنة – دير الأسد",
+  locationHe: "בענה – דיר אל-אסד",
 
   website: "https://dataplus05.com",
 
-  logo: "/images/logo/logo.png",
-
-  heroBanner: "/images/banners/hero.jpg",
+  whatsapp: "https://wa.me/972546734054",
 
   currency: "₪",
-};
+
+  social: {
+    facebook: "",
+    instagram: "",
+  },
+} as const;
