@@ -57,6 +57,7 @@ model Product {
   slug    String  @unique
   sku     String  @unique
   barcode String? @unique
+  mpn     String?
 
   nameAr        String
   nameHe        String
@@ -78,7 +79,7 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   brandId String?
-  brand   Brand?  @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  brand   Brand? @relation(fields: [brandId], references: [id], onDelete: SetNull)
 
   images         ProductImage[]
   specifications ProductSpecification[]
@@ -88,6 +89,7 @@ model Product {
 
   @@index([categoryId])
   @@index([brandId])
+  @@index([mpn])
   @@index([status])
   @@index([isFeatured])
   @@index([createdAt])
