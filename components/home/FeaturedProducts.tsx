@@ -1,48 +1,52 @@
-"use client";
-
 import Link from "next/link";
+
 import ProductCard from "@/components/product/ProductCard";
-import { useLanguage } from "@/components/providers/LanguageProvider";
+import { prisma } from "@/lib/prisma";
 
-const products = [
-  {
-    slug: "asus-tuf-gaming",
-    titleHe: "מחשב נייד ASUS TUF Gaming",
-    titleAr: "لابتوب ASUS TUF Gaming",
-    price: 4299,
-    oldPrice: 4699,
-    badgeHe: "מבצע",
-    badgeAr: "خصم",
-  },
-  {
-    slug: "hp-laserjet",
-    titleHe: "מדפסת HP LaserJet",
-    titleAr: "طابعة HP LaserJet",
-    price: 899,
-    badgeHe: "חדש",
-    badgeAr: "جديد",
-  },
-  {
-    slug: "rtx-5070",
-    titleHe: "כרטיס מסך NVIDIA RTX 5070",
-    titleAr: "كرت شاشة NVIDIA RTX 5070",
-    price: 3199,
-    oldPrice: 3399,
-    badgeHe: "מחיר מיוחד",
-    badgeAr: "سعر خاص",
-  },
-  {
-    slug: "office-chair",
-    titleHe: "כיסא מנהלים ארגונומי",
-    titleAr: "كرسي مدير مريح",
-    price: 699,
-    badgeHe: "מומלץ",
-    badgeAr: "موصى به",
-  },
-];
+export const dynamic = "force-dynamic";
 
-export default function FeaturedProducts() {
-  const { isHebrew } = useLanguage();
+export default async function FeaturedProducts() {
+  const products = await prisma.product.findMany({
+    where: {
+      status: "ACTIVE",
+      isFeatured: true,
+    },
+    select: {
+      id: true,
+      slug: true,
+      nameAr: true,
+      nameHe: true,
+      price: true,
+      compareAtPrice: true,
+      stock: true,
+      isFeatured: true,
+      isNew: true,
+      images: {
+        orderBy: [
+          {
+            isPrimary: "desc",
+          },
+          {
+            sortOrder: "asc",
+          },
+        ],
+        take: 1,
+        select: {
+          url: true,
+          altAr: true,
+          altHe: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 8,
+  });
+
+  if (products.length === 0) {
+    return null;
+  }
 
   return (
     <section className="bg-gray-50 py-20">
@@ -57,13 +61,13 @@ export default function FeaturedProducts() {
             </p>
 
             <h2 className="mt-2 text-3xl font-black text-gray-950 sm:text-4xl">
-              {isHebrew ? "מוצרים מומלצים" : "المنتجات المميزة"}
+              المنتجات المميزة
+              <span className="mx-2 text-gray-300">/</span>
+              <span dir="rtl">מוצרים מומלצים</span>
             </h2>
 
             <p className="mt-3 text-gray-500">
-              {isHebrew
-                ? "מבחר מוצרים מומלצים במחירים מיוחדים."
-                : "مجموعة مختارة من المنتجات بأسعار مميزة."}
+              منتجات مختارة وعروض مميزة من متجر Data Plus.
             </p>
           </div>
 
@@ -71,14 +75,35 @@ export default function FeaturedProducts() {
             href="/shop"
             className="w-fit rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600"
           >
-            {isHebrew ? "לכל המוצרים" : "جميع المنتجات"}
+            جميع المنتجات
           </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.slug} {...product} />
-          ))}
+          {products.map((product) => {
+            const image = product.images[0];
+
+            return (
+              <ProductCard
+                key={product.id}
+                slug={product.slug}
+                titleAr={product.nameAr}
+                titleHe={product.nameHe}
+                price={Number(product.price)}
+                oldPrice={
+                  product.compareAtPrice
+                    ? Number(product.compareAtPrice)
+                    : undefined
+                }
+                stock={product.stock}
+                isFeatured={product.isFeatured}
+                isNew={product.isNew}
+                imageUrl={image?.url}
+                imageAltAr={image?.altAr ?? product.nameAr}
+                imageAltHe={image?.altHe ?? product.nameHe}
+              />
+            );
+          })}
         </div>
       </div>
     </section>

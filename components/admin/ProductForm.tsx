@@ -17,10 +17,12 @@ import CategoryCard from "@/components/admin/product/CategoryCard";
 import SpecificationsCard from "@/components/admin/product/SpecificationsCard";
 import ImagesCard from "@/components/admin/product/ImagesCard";
 
+import { createProduct } from "@/app/admin/products/new/actions";
+
 import {
-  createProduct,
   initialProductState,
-} from "@/app/admin/products/new/actions";
+  type ProductActionState,
+} from "@/lib/products/actionState";
 
 type ProductFormProps = {
   categories: {

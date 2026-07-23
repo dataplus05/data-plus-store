@@ -3,21 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { validateProductForm } from "@/lib/products/validation";
-import { checkProductDuplicates } from "@/lib/products/duplicateCheck";
 import { createProductRecord } from "@/lib/products/createProduct";
-
-export type ProductActionState = {
-  success: boolean;
-  message: string;
-  fieldErrors: Record<string, string>;
-};
-
-export const initialProductState: ProductActionState = {
-  success: false,
-  message: "",
-  fieldErrors: {},
-};
+import { checkProductDuplicates } from "@/lib/products/duplicateCheck";
+import type { ProductActionState } from "@/lib/products/actionState";
+import { validateProductForm } from "@/lib/products/validation";
 
 export async function createProduct(
   _previousState: ProductActionState,
@@ -39,6 +28,7 @@ export async function createProduct(
     slug: input.slug,
     sku: input.sku,
     barcode: input.barcode,
+    mpn: input.mpn,
   });
 
   if (Object.keys(duplicateErrors).length > 0) {
@@ -62,7 +52,7 @@ export async function createProduct(
         success: false,
         message: "القسم المختار غير موجود.",
         fieldErrors: {
-          categoryId: "اختر قسمًا صحيحًا",
+          categoryId: "اختر قسمًا صحيحًا.",
         },
       };
     }
@@ -75,7 +65,7 @@ export async function createProduct(
         success: false,
         message: "الماركة المختارة غير موجودة.",
         fieldErrors: {
-          brandId: "اختر ماركة صحيحة",
+          brandId: "اختر ماركة صحيحة.",
         },
       };
     }
@@ -88,9 +78,9 @@ export async function createProduct(
     };
   }
 
+  revalidatePath("/");
   revalidatePath("/admin");
   revalidatePath("/admin/products");
-  revalidatePath("/");
 
   redirect("/admin/products?created=1");
 }

@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import {
+  Flame,
   Heart,
   Monitor,
   ShoppingCart,
+  Sparkles,
   Star,
 } from "lucide-react";
+
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 type ProductCardProps = {
@@ -15,9 +18,19 @@ type ProductCardProps = {
   titleAr: string;
   price: number;
   oldPrice?: number;
-  badgeHe?: string;
-  badgeAr?: string;
+  stock: number;
+  isFeatured?: boolean;
+  isNew?: boolean;
+  imageUrl?: string;
+  imageAltAr?: string;
+  imageAltHe?: string;
 };
+
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("he-IL", {
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 
 export default function ProductCard({
   slug,
@@ -25,25 +38,62 @@ export default function ProductCard({
   titleAr,
   price,
   oldPrice,
-  badgeHe,
-  badgeAr,
+  stock,
+  isFeatured = false,
+  isNew = false,
+  imageUrl,
+  imageAltAr,
+  imageAltHe,
 }: ProductCardProps) {
   const { isHebrew } = useLanguage();
 
   const title = isHebrew ? titleHe : titleAr;
-  const badge = isHebrew ? badgeHe : badgeAr;
+  const imageAlt = isHebrew
+    ? imageAltHe ?? titleHe
+    : imageAltAr ?? titleAr;
+
+  const hasDiscount =
+    typeof oldPrice === "number" && oldPrice > price;
+
+  const discountPercentage = hasDiscount
+    ? Math.round(((oldPrice - price) / oldPrice) * 100)
+    : 0;
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-      {badge && (
-        <span className="absolute start-4 top-4 z-10 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white">
-          {badge}
-        </span>
-      )}
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+      <div className="absolute start-4 top-4 z-10 flex flex-col items-start gap-2">
+        {isFeatured && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-3 py-1 text-xs font-bold text-white shadow-sm">
+            <Flame size={13} />
+
+            {isHebrew ? "מוצר להיט" : "منتج رائج"}
+          </span>
+        )}
+
+        {isNew && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+            <Sparkles size={13} />
+
+            {isHebrew ? "חדש" : "جديد"}
+          </span>
+        )}
+
+        {hasDiscount && (
+          <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
+            {isHebrew
+              ? `${discountPercentage}% הנחה`
+              : `خصم ${discountPercentage}%`}
+          </span>
+        )}
+      </div>
 
       <button
         type="button"
-        aria-label={isHebrew ? "הוספה למועדפים" : "إضافة إلى المفضلة"}
+        aria-label={
+          isHebrew
+            ? "הוספה למועדפים"
+            : "إضافة إلى المفضلة"
+        }
         className="absolute end-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition hover:border-orange-300 hover:text-orange-500"
       >
         <Heart size={19} />
@@ -51,22 +101,35 @@ export default function ProductCard({
 
       <Link
         href={`/product/${slug}`}
-        className="flex h-56 items-center justify-center bg-gray-50"
+        className="flex h-56 items-center justify-center overflow-hidden bg-gray-50 p-5"
       >
-        <Monitor
-          size={92}
-          strokeWidth={1.2}
-          className="text-gray-700 transition duration-300 group-hover:scale-105"
-        />
+        {imageUrl ? (
+          <div
+            role="img"
+            aria-label={imageAlt}
+            className="h-full w-full bg-contain bg-center bg-no-repeat transition duration-300 group-hover:scale-105"
+            style={{
+              backgroundImage: `url("${imageUrl}")`,
+            }}
+          />
+        ) : (
+          <Monitor
+            size={92}
+            strokeWidth={1.2}
+            className="text-gray-700 transition duration-300 group-hover:scale-105"
+          />
+        )}
       </Link>
 
-      <div className="p-5">
-        <div className="flex items-center gap-1 text-amber-400">
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-center gap-1 text-gray-300">
           {[1, 2, 3, 4, 5].map((star) => (
-            <Star key={star} size={15} fill="currentColor" />
+            <Star key={star} size={15} />
           ))}
 
-          <span className="ms-2 text-xs text-gray-400">(5)</span>
+          <span className="ms-2 text-xs text-gray-400">
+            (0)
+          </span>
         </div>
 
         <Link href={`/product/${slug}`}>
@@ -75,29 +138,48 @@ export default function ProductCard({
           </h3>
         </Link>
 
-        <div className="mt-4 flex items-end gap-3">
+        <div className="mt-4 flex flex-wrap items-end gap-3">
           <span className="text-2xl font-black text-orange-500">
-            ₪{price.toLocaleString()}
+            ₪{formatPrice(price)}
           </span>
 
-          {oldPrice && (
+          {hasDiscount && (
             <span className="text-sm text-gray-400 line-through">
-              ₪{oldPrice.toLocaleString()}
+              ₪{formatPrice(oldPrice)}
             </span>
           )}
         </div>
 
-        <p className="mt-3 text-sm font-semibold text-green-600">
-          {isHebrew ? "במלאי" : "متوفر في المخزون"}
+        <p
+          className={
+            stock > 0
+              ? "mt-3 text-sm font-semibold text-green-600"
+              : "mt-3 text-sm font-semibold text-red-600"
+          }
+        >
+          {stock > 0
+            ? isHebrew
+              ? "במלאי"
+              : "متوفر في المخزون"
+            : isHebrew
+              ? "אזל מהמלאי"
+              : "غير متوفر في المخزون"}
         </p>
 
         <button
           type="button"
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-950 py-3 font-bold text-white transition hover:bg-orange-500"
+          disabled={stock <= 0}
+          className="mt-auto flex w-full items-center justify-center gap-2 rounded-xl bg-gray-950 py-3 font-bold text-white transition hover:bg-orange-500 disabled:cursor-not-allowed disabled:bg-gray-300"
         >
           <ShoppingCart size={19} />
 
-          {isHebrew ? "הוספה לסל" : "أضف إلى السلة"}
+          {stock > 0
+            ? isHebrew
+              ? "הוספה לסל"
+              : "أضف إلى السلة"
+            : isHebrew
+              ? "לא זמין"
+              : "غير متوفر"}
         </button>
       </div>
     </article>
