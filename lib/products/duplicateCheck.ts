@@ -1,39 +1,62 @@
 import { prisma } from "@/lib/prisma";
 
-type DuplicateProductInput = {
+type DuplicateCheckInput = {
   slug: string;
-  sku: string;
+  sku?: string | null;
   barcode?: string | null;
+  mpn?: string | null;
 };
 
-export type DuplicateProductErrors = Record<
-  "slug" | "sku" | "barcode",
-  string
->;
+type ProductDuplicateCondition =
+  | { slug: string }
+  | { sku: string }
+  | { barcode: string }
+  | { mpn: string };
+
+export type ProductDuplicateErrors = Record<string, string>;
 
 export async function checkProductDuplicates({
   slug,
   sku,
   barcode,
-}: DuplicateProductInput): Promise<
-  Partial<DuplicateProductErrors>
-> {
-  const conditions = [
-    {
-      slug,
-    },
-    {
-      sku,
-    },
-  ];
+  mpn,
+}: DuplicateCheckInput): Promise<ProductDuplicateErrors> {
+  const normalizedSlug = slug.trim();
+  const normalizedSku = sku?.trim() || null;
+  const normalizedBarcode = barcode?.trim() || null;
+  const normalizedMpn = mpn?.trim() || null;
 
-  if (barcode) {
+  const conditions: ProductDuplicateCondition[] = [];
+
+  if (normalizedSlug) {
     conditions.push({
-      barcode,
+      slug: normalizedSlug,
     });
   }
 
-  const product = await prisma.product.findFirst({
+  if (normalizedSku) {
+    conditions.push({
+      sku: normalizedSku,
+    });
+  }
+
+  if (normalizedBarcode) {
+    conditions.push({
+      barcode: normalizedBarcode,
+    });
+  }
+
+  if (normalizedMpn) {
+    conditions.push({
+      mpn: normalizedMpn,
+    });
+  }
+
+  if (conditions.length === 0) {
+    return {};
+  }
+
+  const existingProducts = await prisma.product.findMany({
     where: {
       OR: conditions,
     },
@@ -41,25 +64,28 @@ export async function checkProductDuplicates({
       slug: true,
       sku: true,
       barcode: true,
+      mpn: true,
     },
   });
 
-  if (!product) {
-    return {};
-  }
+  const errors: ProductDuplicateErrors = {};
 
-  const errors: Partial<DuplicateProductErrors> = {};
+  for (const product of existingProducts) {
+    if (product.slug === normalizedSlug) {
+      errors.slug = "هذا الرابط مستخدم لمنتج آخر.";
+    }
 
-  if (product.slug === slug) {
-    errors.slug = "رابط المنتج مستخدم مسبقًا";
-  }
+    if (normalizedSku && product.sku === normalizedSku) {
+      errors.sku = "رمز SKU مستخدم لمنتج آخر.";
+    }
 
-  if (product.sku === sku) {
-    errors.sku = "رمز SKU مستخدم مسبقًا";
-  }
+    if (normalizedBarcode && product.barcode === normalizedBarcode) {
+      errors.barcode = "الباركود مستخدم لمنتج آخر.";
+    }
 
-  if (barcode && product.barcode === barcode) {
-    errors.barcode = "الباركود مستخدم مسبقًا";
+    if (normalizedMpn && product.mpn === normalizedMpn) {
+      errors.mpn = "رقم MPN مستخدم لمنتج آخر.";
+    }
   }
 
   return errors;
