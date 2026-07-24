@@ -5,16 +5,18 @@ import type {
 } from "@/lib/products/types";
 import { createSlug } from "@/lib/products/slug";
 
+type ValidationErrors = Record<string, string>;
+
 export type ProductValidationResult =
   | {
       success: true;
       data: ProductInput;
-      errors: {};
+      errors: ValidationErrors;
     }
   | {
       success: false;
       data: null;
-      errors: Record<string, string>;
+      errors: ValidationErrors;
     };
 
 function getText(
@@ -37,7 +39,7 @@ function getRequiredText(
   formData: FormData,
   fieldName: string,
   label: string,
-  errors: Record<string, string>
+  errors: ValidationErrors
 ): string {
   const value = getText(formData, fieldName);
 
@@ -52,7 +54,7 @@ function getNumber(
   formData: FormData,
   fieldName: string,
   label: string,
-  errors: Record<string, string>,
+  errors: ValidationErrors,
   options: {
     required?: boolean;
     integer?: boolean;
@@ -138,7 +140,7 @@ function getSpecifications(
 export function validateProductForm(
   formData: FormData
 ): ProductValidationResult {
-  const errors: Record<string, string> = {};
+  const errors: ValidationErrors = {};
 
   const nameAr = getRequiredText(
     formData,
