@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import ProductForm from "@/components/admin/ProductForm";
-
+import { createProduct } from "@/app/admin/products/new/actions";
 export default async function NewProductPage() {
   const [categories, brands] = await Promise.all([
     prisma.category.findMany({
@@ -26,10 +26,12 @@ export default async function NewProductPage() {
     }),
   ]);
 
-  return (
-    <ProductForm
-      categories={categories}
-      brands={brands}
-    />
-  );
+ return (
+  <ProductForm
+    mode="create"
+    action={createProduct}
+    categories={categories}
+    brands={brands}
+  />
+);
 }

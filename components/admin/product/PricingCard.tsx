@@ -1,12 +1,19 @@
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 
+import type {
+  PricingFormValues,
+  ProductFieldErrors,
+} from "@/lib/products/formTypes";
+
 type PricingCardProps = {
-  errors?: Record<string, string>;
+  errors?: ProductFieldErrors;
+  defaultValues?: Partial<PricingFormValues>;
 };
 
 export default function PricingCard({
   errors = {},
+  defaultValues = {},
 }: PricingCardProps) {
   return (
     <Card
@@ -21,6 +28,7 @@ export default function PricingCard({
           step="0.01"
           label="سعر البيع"
           placeholder="4299"
+          defaultValue={defaultValues.price ?? ""}
           hint="السعر الذي سيظهر للعميل."
           error={errors.price}
           required
@@ -33,6 +41,7 @@ export default function PricingCard({
           step="0.01"
           label="السعر قبل الخصم"
           placeholder="4699"
+          defaultValue={defaultValues.compareAtPrice ?? ""}
           hint="اختياري. اتركه فارغًا إذا لم يوجد خصم."
           error={errors.compareAtPrice}
         />
@@ -44,6 +53,7 @@ export default function PricingCard({
           step="0.01"
           label="تكلفة الشراء"
           placeholder="3500"
+          defaultValue={defaultValues.costPrice ?? ""}
           hint="اختياري ولا يظهر للعميل."
           error={errors.costPrice}
         />
@@ -55,7 +65,8 @@ export default function PricingCard({
         </p>
 
         <p className="mt-1 text-sm leading-6 text-gray-600">
-          يجب أن يكون السعر قبل الخصم أعلى من سعر البيع حتى يظهر التخفيض بشكل صحيح في المتجر.
+          يجب أن يكون السعر قبل الخصم أعلى من سعر
+          البيع حتى يظهر التخفيض بشكل صحيح في المتجر.
         </p>
       </div>
     </Card>

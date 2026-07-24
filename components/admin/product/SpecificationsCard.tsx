@@ -6,39 +6,50 @@ import { Plus, Trash2 } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 
-type Specification = {
-  id: number;
-  keyAr: string;
-  keyHe: string;
-  valueAr: string;
-  valueHe: string;
+import type {
+  ProductSpecificationFormValue,
+} from "@/lib/products/formTypes";
+
+type Specification = ProductSpecificationFormValue & {
+  id: string;
 };
 
-export default function SpecificationsCard() {
-  const [specifications, setSpecifications] = useState<Specification[]>([
-    {
-      id: 1,
-      keyAr: "",
-      keyHe: "",
-      valueAr: "",
-      valueHe: "",
-    },
-  ]);
+type SpecificationsCardProps = {
+  defaultValues?: ProductSpecificationFormValue[];
+};
+
+function createEmptySpecification(): Specification {
+  return {
+    id: crypto.randomUUID(),
+    keyAr: "",
+    keyHe: "",
+    valueAr: "",
+    valueHe: "",
+  };
+}
+
+export default function SpecificationsCard({
+  defaultValues = [],
+}: SpecificationsCardProps) {
+  const [specifications, setSpecifications] = useState<Specification[]>(() => {
+    if (defaultValues.length === 0) {
+      return [createEmptySpecification()];
+    }
+
+    return defaultValues.map((specification) => ({
+      id: crypto.randomUUID(),
+      ...specification,
+    }));
+  });
 
   function addSpecification() {
     setSpecifications((current) => [
       ...current,
-      {
-        id: Date.now(),
-        keyAr: "",
-        keyHe: "",
-        valueAr: "",
-        valueHe: "",
-      },
+      createEmptySpecification(),
     ]);
   }
 
-  function removeSpecification(id: number) {
+  function removeSpecification(id: string) {
     setSpecifications((current) => {
       if (current.length === 1) {
         return current;
@@ -49,8 +60,8 @@ export default function SpecificationsCard() {
   }
 
   function updateSpecification(
-    id: number,
-    field: keyof Omit<Specification, "id">,
+    id: string,
+    field: keyof ProductSpecificationFormValue,
     value: string
   ) {
     setSpecifications((current) =>

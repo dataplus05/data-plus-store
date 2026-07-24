@@ -1,18 +1,20 @@
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 
-type CategoryOption = {
-  value: string;
-  label: string;
-};
+import type {
+  CategoryFormValues,
+  ProductFieldErrors,
+  SelectOption,
+} from "@/lib/products/formTypes";
 
 type CategoryCardProps = {
-  categoryOptions: CategoryOption[];
-  brandOptions: CategoryOption[];
-  errors?: Record<string, string>;
+  categoryOptions: SelectOption[];
+  brandOptions: SelectOption[];
+  errors?: ProductFieldErrors;
+  defaultValues?: Partial<CategoryFormValues>;
 };
 
-const statusOptions = [
+const statusOptions: SelectOption[] = [
   {
     value: "DRAFT",
     label: "مسودة",
@@ -31,6 +33,7 @@ export default function CategoryCard({
   categoryOptions,
   brandOptions,
   errors = {},
+  defaultValues = {},
 }: CategoryCardProps) {
   return (
     <div className="space-y-6">
@@ -44,6 +47,7 @@ export default function CategoryCard({
             label="القسم"
             placeholder="اختر القسم"
             options={categoryOptions}
+            defaultValue={defaultValues.categoryId ?? ""}
             error={errors.categoryId}
             required
           />
@@ -53,6 +57,7 @@ export default function CategoryCard({
             label="الماركة"
             placeholder="اختر الماركة"
             options={brandOptions}
+            defaultValue={defaultValues.brandId ?? ""}
             error={errors.brandId}
           />
         </div>
@@ -66,7 +71,7 @@ export default function CategoryCard({
           name="status"
           label="الحالة"
           options={statusOptions}
-          defaultValue="DRAFT"
+          defaultValue={defaultValues.status ?? "DRAFT"}
           error={errors.status}
         />
 
@@ -78,13 +83,15 @@ export default function CategoryCard({
               </p>
 
               <p className="mt-1 text-xs leading-5 text-gray-500">
-                يظهر المنتج في قسم المنتجات المميزة في الصفحة الرئيسية.
+                يظهر المنتج في قسم المنتجات المميزة في
+                الصفحة الرئيسية.
               </p>
             </div>
 
             <input
               type="checkbox"
               name="isFeatured"
+              defaultChecked={defaultValues.isFeatured ?? false}
               className="h-5 w-5 accent-orange-500"
             />
           </label>
@@ -103,6 +110,7 @@ export default function CategoryCard({
             <input
               type="checkbox"
               name="isNew"
+              defaultChecked={defaultValues.isNew ?? false}
               className="h-5 w-5 accent-orange-500"
             />
           </label>

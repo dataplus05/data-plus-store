@@ -17,14 +17,29 @@ import CategoryCard from "@/components/admin/product/CategoryCard";
 import SpecificationsCard from "@/components/admin/product/SpecificationsCard";
 import ImagesCard from "@/components/admin/product/ImagesCard";
 
-import { createProduct } from "@/app/admin/products/new/actions";
-
 import {
   initialProductState,
   type ProductActionState,
 } from "@/lib/products/actionState";
 
+import type {
+  ProductFormValues,
+} from "@/lib/products/formTypes";
+
+export type {
+  ProductFormValues,
+} from "@/lib/products/formTypes";
+
+type ProductFormAction = (
+  previousState: ProductActionState,
+  formData: FormData
+) => Promise<ProductActionState>;
+
 type ProductFormProps = {
+  mode?: "create" | "edit";
+
+  action: ProductFormAction;
+
   categories: {
     id: string;
     nameAr: string;
@@ -35,10 +50,26 @@ type ProductFormProps = {
     id: string;
     name: string;
   }[];
+
+  defaultValues?: ProductFormValues;
 };
 
-function SubmitButton() {
+function SubmitButton({
+  mode,
+}: {
+  mode: "create" | "edit";
+}) {
   const { pending } = useFormStatus();
+
+  const pendingText =
+    mode === "edit"
+      ? "جاري تحديث المنتج..."
+      : "جاري حفظ المنتج...";
+
+  const buttonText =
+    mode === "edit"
+      ? "حفظ التعديلات"
+      : "حفظ المنتج";
 
   return (
     <button
@@ -52,12 +83,12 @@ function SubmitButton() {
             size={19}
             className="animate-spin"
           />
-          جاري حفظ المنتج...
+          {pendingText}
         </>
       ) : (
         <>
           <Save size={19} />
-          حفظ المنتج
+          {buttonText}
         </>
       )}
     </button>
@@ -65,18 +96,25 @@ function SubmitButton() {
 }
 
 export default function ProductForm({
+  mode = "create",
+  action,
   categories,
   brands,
+  defaultValues,
 }: ProductFormProps) {
   const [state, formAction] = useActionState(
-    createProduct,
+    action,
     initialProductState
   );
 
-  const categoryOptions = categories.map((category) => ({
-    value: category.id,
-    label: `${category.nameAr} / ${category.nameHe}`,
-  }));
+  const isEditing = mode === "edit";
+
+  const categoryOptions = categories.map(
+    (category) => ({
+      value: category.id,
+      label: `${category.nameAr} / ${category.nameHe}`,
+    })
+  );
 
   const brandOptions = brands.map((brand) => ({
     value: brand.id,
@@ -84,10 +122,7 @@ export default function ProductForm({
   }));
 
   return (
-    <form
-      action={formAction}
-      className="space-y-6"
-    >
+    <form action={formAction} className="space-y-6">
       <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link
@@ -99,16 +134,19 @@ export default function ProductForm({
           </Link>
 
           <h1 className="mt-3 text-3xl font-black text-gray-950">
-            إضافة منتج جديد
+            {isEditing
+              ? "تعديل المنتج"
+              : "إضافة منتج جديد"}
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm leading-7 text-gray-500">
-            أدخل بيانات المنتج بالعربية والعبرية، ثم احفظه
-            مباشرة داخل قاعدة بيانات Data Plus.
+            {isEditing
+              ? "عدّل بيانات المنتج ثم احفظ التغييرات داخل قاعدة بيانات Data Plus."
+              : "أدخل بيانات المنتج بالعربية والعبرية، ثم احفظه مباشرة داخل قاعدة بيانات Data Plus."}
           </p>
         </div>
 
-        <SubmitButton />
+        <SubmitButton mode={mode} />
       </section>
 
       {state.message && !state.success && (
@@ -117,7 +155,9 @@ export default function ProductForm({
           className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4"
         >
           <p className="font-bold text-red-700">
-            تعذر حفظ المنتج
+            {isEditing
+              ? "تعذر تحديث المنتج"
+              : "تعذر حفظ المنتج"}
           </p>
 
           <p className="mt-1 text-sm leading-6 text-red-600">
@@ -131,7 +171,9 @@ export default function ProductForm({
           <CheckCircle2 size={22} />
 
           <p className="font-bold">
-            تم حفظ المنتج بنجاح.
+            {isEditing
+              ? "تم تحديث المنتج بنجاح."
+              : "تم حفظ المنتج بنجاح."}
           </p>
         </div>
       )}
@@ -140,17 +182,24 @@ export default function ProductForm({
         <div className="space-y-6">
           <BasicInformation
             errors={state.fieldErrors}
+            defaultValues={defaultValues}
           />
 
           <PricingCard
             errors={state.fieldErrors}
+            defaultValues={defaultValues}
           />
 
           <InventoryCard
             errors={state.fieldErrors}
+            defaultValues={defaultValues}
           />
 
-          <SpecificationsCard />
+          <SpecificationsCard
+            defaultValues={
+              defaultValues?.specifications
+            }
+          />
 
           <ImagesCard />
         </div>
@@ -160,20 +209,23 @@ export default function ProductForm({
             categoryOptions={categoryOptions}
             brandOptions={brandOptions}
             errors={state.fieldErrors}
+            defaultValues={defaultValues}
           />
 
           <aside className="sticky bottom-4 rounded-2xl border border-orange-200 bg-orange-50 p-5 shadow-lg">
             <p className="font-black text-gray-950">
-              جاهز لحفظ المنتج؟
+              {isEditing
+                ? "جاهز لحفظ التعديلات؟"
+                : "جاهز لحفظ المنتج؟"}
             </p>
 
             <p className="mt-2 text-sm leading-6 text-gray-600">
-              راجع الاسم، السعر، المخزون، القسم والماركة قبل
-              الحفظ.
+              راجع الاسم، السعر، المخزون، القسم والماركة
+              قبل الحفظ.
             </p>
 
             <div className="mt-5">
-              <SubmitButton />
+              <SubmitButton mode={mode} />
             </div>
           </aside>
         </div>

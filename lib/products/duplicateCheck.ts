@@ -5,6 +5,7 @@ type DuplicateCheckInput = {
   sku?: string | null;
   barcode?: string | null;
   mpn?: string | null;
+  excludeProductId?: string;
 };
 
 type ProductDuplicateCondition =
@@ -20,6 +21,7 @@ export async function checkProductDuplicates({
   sku,
   barcode,
   mpn,
+  excludeProductId,
 }: DuplicateCheckInput): Promise<ProductDuplicateErrors> {
   const normalizedSlug = slug.trim();
   const normalizedSku = sku?.trim() || null;
@@ -58,7 +60,20 @@ export async function checkProductDuplicates({
 
   const existingProducts = await prisma.product.findMany({
     where: {
-      OR: conditions,
+      AND: [
+        {
+          OR: conditions,
+        },
+        ...(excludeProductId
+          ? [
+              {
+                id: {
+                  not: excludeProductId,
+                },
+              },
+            ]
+          : []),
+      ],
     },
     select: {
       slug: true,
@@ -79,7 +94,10 @@ export async function checkProductDuplicates({
       errors.sku = "رمز SKU مستخدم لمنتج آخر.";
     }
 
-    if (normalizedBarcode && product.barcode === normalizedBarcode) {
+    if (
+      normalizedBarcode &&
+      product.barcode === normalizedBarcode
+    ) {
       errors.barcode = "الباركود مستخدم لمنتج آخر.";
     }
 
